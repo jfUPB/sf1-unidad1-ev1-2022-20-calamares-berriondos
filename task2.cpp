@@ -15,8 +15,8 @@ void task2()
     static uint8_t lastButtonPressed;
     static uint32_t initStableTime;
 
-    const uint8_t Boton1_PIN = 13;
-    const uint8_t Boton2_PIN = 32;
+    const uint8_t Boton1_PIN = 32;
+    const uint8_t Boton2_PIN = 13;
     const uint32_t STABLE_TIME = 100;
 
     switch (taskState)
@@ -35,8 +35,8 @@ void task2()
             initStableTime = millis();
             taskState = TaskState::WAIT_STABLE;
         }
-        if(digitalRead(Boton1_PIN) == LOW){
-            lastButtonPressed = Boton1_PIN;
+        if(digitalRead(Boton2_PIN) == LOW){
+            lastButtonPressed = Boton2_PIN;
             initStableTime = millis();
             taskState = TaskState::WAIT_STABLE;
         }

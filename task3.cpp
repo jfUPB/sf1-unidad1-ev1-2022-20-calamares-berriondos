@@ -33,9 +33,9 @@ void task3()
     static TaskStates taskState = TaskStates::INIT;
     const uint8_t led = 14;
     static uint32_t lasTime;
-    const uint32_t LentoINTERVAL = 500;
-    const uint32_t MedioINTERVAL = 250;
-    const uint32_t RapidoINTERVAL = 125;
+    static constexpr uint32_t LentoINTERVAL = 500;
+    static constexpr uint32_t MedioINTERVAL = 250;
+    static constexpr uint32_t RapidoINTERVAL = 125;
     
 
     static BUTTONS SecretCodigoRapido[5] = {BUTTONS::Boton1, BUTTONS::Boton1,
@@ -46,6 +46,7 @@ void task3()
 
     static bool ledState = false;
     static bool lastStateON = false;
+    static bool lastStateOFF = false;
     static uint8_t key = 0;
 
     switch (taskState)
@@ -76,6 +77,7 @@ void task3()
                 }
                 else if (buttonEvt.whichButton == BUTTONS::Boton2)
                 {
+                    
                     taskState = TaskStates::MEDIO;
                 }
 
@@ -137,14 +139,14 @@ void task3()
                         {
                             taskState = TaskStates::ENCENDIDO;
                         }
-                        else
+                        else if (lastStateOFF == true)
                         {
                             taskState = TaskStates::APAGADO;
                         }
                     }
                     else
                     {
-                        Serial.print("wrong!!!!n");
+                        Serial.print("wrong!!!!");
                     }
                 }
 
@@ -168,6 +170,7 @@ void task3()
             }
             else if (buttonEvt.whichButton == BUTTONS::Boton2)
             {
+                lastStateOFF = true;
                 taskState = TaskStates::RAPIDO;
             }
         }
