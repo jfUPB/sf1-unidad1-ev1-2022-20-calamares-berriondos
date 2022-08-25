@@ -33,8 +33,8 @@ void task3()
     static TaskStates taskState = TaskStates::INIT;
     const uint8_t led = 14;
     static uint32_t lasTime;
-    static constexpr uint32_t LentoINTERVAL = 500;
-    static constexpr uint32_t MedioINTERVAL = 250;
+    static constexpr uint32_t LentoINTERVAL = 1000;
+    static constexpr uint32_t MedioINTERVAL = 500;
     static constexpr uint32_t RapidoINTERVAL = 125;
     
 
@@ -170,8 +170,9 @@ void task3()
             }
             else if (buttonEvt.whichButton == BUTTONS::Boton2)
             {
-                lastStateOFF = true;
                 taskState = TaskStates::RAPIDO;
+                lastStateOFF = true;
+                lastStateON = false;
             }
         }
         break;
@@ -192,8 +193,9 @@ void task3()
             }
             else if (buttonEvt.whichButton == BUTTONS::Boton2)
             {
-                lastStateON = true;
                 taskState = TaskStates::RAPIDO;
+                lastStateON = true;
+                lastStateOFF = false;
             }
         }
         break;
