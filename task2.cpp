@@ -15,33 +15,32 @@ void task2()
     static uint8_t lastButtonPressed;
     static uint32_t initStableTime;
 
-    const uint8_t Boton1 = 13;
-    const uint8_t Boton2 = 32;
+    const uint8_t Boton1_PIN = 13;
+    const uint8_t Boton2_PIN = 32;
     const uint32_t STABLE_TIME = 100;
 
     switch (taskState)
     {
     case TaskState::INIT:
     {
-        pinMode(Boton1, INPUT_PULLUP);
-        pinMode(Boton2, INPUT_PULLUP);
-
+        pinMode(Boton1_PIN, INPUT_PULLUP);
+        pinMode(Boton2_PIN, INPUT_PULLUP);
         taskState = TaskState::WAIT_PRESS; 
         break;
     }
     case TaskState::WAIT_PRESS:
     {
-        if(digitalRead(Boton1) == LOW){
-            lastButtonPressed = Boton1;
+        if(digitalRead(Boton1_PIN) == LOW){
+            lastButtonPressed = Boton1_PIN;
+            initStableTime = millis();
+            taskState = TaskState::WAIT_STABLE;
+        }
+        if(digitalRead(Boton1_PIN) == LOW){
+            lastButtonPressed = Boton1_PIN;
             initStableTime = millis();
             taskState = TaskState::WAIT_STABLE;
         }
 
-        if(digitalRead(Boton2) == LOW){
-            lastButtonPressed = Boton2;
-            initStableTime = millis();
-            taskState = TaskState::WAIT_STABLE;
-        }
         break;
     }
     case TaskState::WAIT_STABLE:
@@ -50,10 +49,10 @@ void task2()
             taskState = TaskState::WAIT_PRESS;
         }
         else if ( (millis() - initStableTime) > STABLE_TIME){
-            if(lastButtonPressed == Boton1) buttonEvt.whichButton = BUTTONS::Boton1;
-            else if(lastButtonPressed == Boton2) buttonEvt.whichButton = BUTTONS::Boton2;
+            if(lastButtonPressed == Boton1_PIN) buttonEvt.whichButton = BUTTONS::Boton1;
+            else if(lastButtonPressed == Boton2_PIN) buttonEvt.whichButton = BUTTONS::Boton2;
             buttonEvt.trigger = true;
-            printf("Button pressed: %d\n", lastButtonPressed);
+            //printf("Button pressed: %d\n", lastButtonPressed);
             taskState = TaskState::WAIT_RELEASE;
         }
         break;

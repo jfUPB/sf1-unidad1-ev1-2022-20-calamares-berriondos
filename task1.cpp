@@ -24,7 +24,7 @@ void task1()
         if (Serial.available() > 0)
         {
             int dataRx = Serial.read();
-            if (dataRx == 's')
+            if (dataRx == 'u')
             {
                 Serial.print("Boton1\n");
                 buttonEvt.trigger = true;

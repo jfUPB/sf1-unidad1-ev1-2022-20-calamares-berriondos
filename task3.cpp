@@ -32,143 +32,169 @@ void task3()
     };
     static TaskStates taskState = TaskStates::INIT;
     const uint8_t led = 14;
+    static uint32_t lasTime;
+    const uint32_t LentoINTERVAL = 500;
+    const uint32_t MedioINTERVAL = 250;
+    const uint32_t RapidoINTERVAL = 125;
+    
 
-    static const uint32_t ledSpeed = 0;
+    static BUTTONS SecretCodigoRapido[5] = {BUTTONS::Boton1, BUTTONS::Boton1,
+                                                    BUTTONS::Boton2, BUTTONS::Boton2,
+                                                    BUTTONS::Boton1};
 
-    static uint8_t ledState;
-    static uint8_t keyCounter;
+    static BUTTONS RapidoKey[5] = {BUTTONS::NONE};
+
+    static bool ledState = false;
+    static bool lastStateON = false;
+    static uint8_t key = 0;
 
     switch (taskState)
     {
     case TaskStates::INIT:
     {
-            if (buttonEvt.trigger == true)
-            {
-                buttonEvt.trigger = false;
-                if (const uint32_t LentoINTERVAL = 500)
-                {
-                    if (buttonEvt.whichButton == BUTTONS::Boton1)
-                    {
-                        //Hacer que el led se apague                    
-                        digitalWrite(led, LOW);
-                    }
+        pinMode(led, OUTPUT);
+        digitalWrite(led, LOW);
 
-                    if (buttonEvt.whichButton == BUTTONS::Boton2)
-                    {
-                        //Hacer que el modo cambie a medio                
-                        ledSpeed == 250;
-                    }
+        taskState = TaskStates::LENTO;
 
-                }
-
-                if (const uint32_t MedioINTERVAL = 250)
-                {
-                    if (buttonEvt.whichButton == BUTTONS::Boton1)
-                    {
-                        //Hacer que el led se prenda                   
-                        digitalWrite(led, HIGH);
-                    }
-
-                    if (buttonEvt.whichButton == BUTTONS::Boton2)
-                    {
-                        //Hacer que el modo cambie a lento              
-                        ledSpeed == 500;
-                    }
-
-                }
-
-                if (led == LOW)
-                {
-                    if (buttonEvt.whichButton == BUTTONS::Boton1)
-                    {
-                        //Hacer que el modo cambie a lento                     
-                        ledSpeed == 500;
-                    }
-
-                    if (buttonEvt.whichButton == BUTTONS::Boton2)
-                    {
-                        //Hacer que el modo cambie a rapido              
-                        ledSpeed == 125;
-                    }
-
-                }
-
-                if (led == HIGH)
-                {
-                    if (buttonEvt.whichButton == BUTTONS::Boton1)
-                    {
-                        //Hacer que el modo cambie a medio                    
-                        ledSpeed == 250;
-                    }
-
-                    if (buttonEvt.whichButton == BUTTONS::Boton2)
-                    {
-                        //Hacer que el modo cambie a rapido              
-                        ledSpeed == 125;
-                    }
-
-                }
-
-                if (const uint32_t RapidoINTERVAL = 125)
-                {     
-                    bool SecretCodigoRapido = false;
-
-                    static BUTTONS SecretCodigoRapido[5] = {BUTTONS::Boton1, BUTTONS::Boton1,
-                                                    BUTTONS::Boton2, BUTTONS::Boton2,
-                                                    BUTTONS::Boton1};
-
-                    static BUTTONS RapidoKey[5] = {BUTTONS::NONE};
-
-                    if (SecretCodigoRapido = true){
-                        digitalWrite(led, LOW);
-                    }
-                    else{
-                       static TaskStates taskState = TaskStates::ENCENDIDO; 
-                    }
-
-                }
-
-
-            break;
+        break;
     }
     case TaskStates::LENTO:
     {
-        const uint8_t led = 14;
-        const uint32_t LentoINTERVAL = 500;
+        uint32_t currentTime = millis();
+        if ((currentTime - lasTime) >= LentoINTERVAL){
 
+            lasTime = currentTime;
+            digitalWrite(led, ledState);
+            ledState = !ledState;
+            if (buttonEvt.trigger == true)
+            {
+                buttonEvt.trigger = false;
+                if (buttonEvt.whichButton == BUTTONS::Boton1)
+                {
+                    taskState = TaskStates::APAGADO;
+                }
+                else if (buttonEvt.whichButton == BUTTONS::Boton2)
+                {
+                    taskState = TaskStates::MEDIO;
+                }
+
+            }   
+        }
         break;
     }
 
     case TaskStates::MEDIO:
     {
-        const uint8_t led = 14;
-        const uint32_t MedioINTERVAL = 250;
-        
+        uint32_t currentTime = millis();
+        if ((currentTime - lasTime) >= MedioINTERVAL){
+
+            lasTime = currentTime;
+            digitalWrite(led, ledState);
+            ledState = !ledState;
+            if (buttonEvt.trigger == true)
+            {
+                buttonEvt.trigger = false;
+                if (buttonEvt.whichButton == BUTTONS::Boton1)
+                {
+                    taskState = TaskStates::ENCENDIDO;
+                }
+                else if (buttonEvt.whichButton == BUTTONS::Boton2)
+                {
+                    taskState = TaskStates::LENTO;
+                }
+
+            }
+        }
         break;
+        
     }
 
     case TaskStates::RAPIDO:
     {
-        const uint8_t led = 14;
-        const uint32_t RapidoINTERVAL = 125;
+        uint32_t currentTime = millis();
+        if ((currentTime - lasTime) >= RapidoINTERVAL)
+        {
+
+            lasTime = currentTime;
+            digitalWrite(led, ledState);
+            ledState = !ledState;
+            
+        }
         
-        break;
+        if (buttonEvt.trigger == true)
+        {
+                buttonEvt.trigger = false;
+                RapidoKey[key] = buttonEvt.whichButton;
+                key++;
+
+                if (key == 5)
+                {
+                    key = 0;
+                    if (compareKeys(SecretCodigoRapido, RapidoKey) == true)
+                    {
+                        if (lastStateON == true)
+                        {
+                            taskState = TaskStates::ENCENDIDO;
+                        }
+                        else
+                        {
+                            taskState = TaskStates::APAGADO;
+                        }
+                    }
+                    else
+                    {
+                        Serial.print("wrong!!!!n");
+                    }
+                }
+
+        }
+    
+            break;      
     }
 
     case TaskStates::APAGADO:
     {
-        const uint8_t led = 14;
-        digitalWrite(led, LOW);
-        
+        digitalWrite(led, ledState);
+
+        ledState = false;
+
+        if (buttonEvt.trigger == true)
+        {
+            buttonEvt.trigger = false;
+            if (buttonEvt.whichButton == BUTTONS::Boton1)
+            {
+                taskState = TaskStates::LENTO;
+            }
+            else if (buttonEvt.whichButton == BUTTONS::Boton2)
+            {
+                taskState = TaskStates::RAPIDO;
+            }
+        }
         break;
+        
     }
 
     case TaskStates::ENCENDIDO:
     {
-        const uint8_t led = 14;
-        digitalWrite(led, HIGH);
-        
+        digitalWrite(led, ledState);
+        ledState = true;
+
+        if (buttonEvt.trigger == true)
+        {
+            buttonEvt.trigger = false;
+            if (buttonEvt.whichButton == BUTTONS::Boton1)
+            {
+                taskState = TaskStates::MEDIO;
+            }
+            else if (buttonEvt.whichButton == BUTTONS::Boton2)
+            {
+                lastStateON = true;
+                taskState = TaskStates::RAPIDO;
+            }
+        }
         break;
+        
     }
 
     
